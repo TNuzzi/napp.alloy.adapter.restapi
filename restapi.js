@@ -171,26 +171,24 @@ function Sync(method, model, opts) {
 			apiCall(params, function(_response) {
 				if (_response.success) {
 					var data = parseJSON(DEBUG, _response, parentNode);
-					var values = [];
 					model.length = 0;
 					for (var i in data) {
-						var item = {};
-						item = data[i];
-						if (item[model.idAttribute] == undefined) {
-							item[model.idAttribute] = guid();
-						}
-						values.push(item);
 						model.length++;
 					}
 
-					params.success((model.length === 1) ? values[0] : values, _response.responseText);
+					// Check for id or add one
+					if (data[model.idAttribute] === undefined) {
+						data[model.idAttribute] = guid();
+					}
+
+					params.success(data, _response.responseText);
 					model.trigger("fetch");
 				} else {
 					params.error(JSON.parse(_response.responseText), _response.responseText);
 					Ti.API.error('[REST API] READ ERROR: ');
 					Ti.API.error(_response);
 				}
-			})
+			});
 			break;
 		
 		case 'update' :
